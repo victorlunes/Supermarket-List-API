@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const listItem = require('../models/List_item')
-express.json()
+
 
 router.get("/", (req, res) => {
     res.send("Hello World!");
   });
 
-router.get('/list-items', async (req, res) => {
+router.get('/list-item', async (req, res) => {
     try {
-        const { username } = req.header
+        const { username } = req.headers
         
         if(!username){
             return res.status(401).json({ error: "Username is required"})
@@ -28,15 +28,11 @@ router.get('/list-items', async (req, res) => {
 router.post('/list-item', async (req, res) => {
     try{
         const { username } = req.headers
-        console.log(username)
         if(!username){
             return res.status(401).json({ error: "Username is required"})
         }
-    
-        const {name, quantity, checked} = req.body
 
-        console.log(name)
-        console.log(quantity)
+        const {name, quantity, checked} = req.body
 
         if(!name || name.length < 3){
             return res.status(400).json({ error: "Name is mandatory and needs to have more than 3 characters"})
@@ -45,7 +41,7 @@ router.post('/list-item', async (req, res) => {
         if(!quantity || typeof(quantity) !== 'number'){
             return res.status(400).json({ error: "Quantity is mandatory and needs to be a number "})
         }
-    
+        
         const newItem = await listItem.create({
             name,
             quantity,
