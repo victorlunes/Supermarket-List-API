@@ -1,10 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const listItem = require('../models/List_item')
+express.json()
+
+router.get("/", (req, res) => {
+    res.send("Hello World!");
+  });
 
 router.get('/list-items', async (req, res) => {
     try {
-        const items = await listItem.find()
+        const { username } = req.header
+        
+        if(!username){
+            return res.status(401).json({ error: "Username is required"})
+        }
+
+        const items = await listItem.find({
+            username,
+        })
         return res.json(items)
 
     } catch (error) {
@@ -12,6 +25,40 @@ router.get('/list-items', async (req, res) => {
     }
 })
 
+router.post('/list-item', async (req, res) => {
+    try{
+        const { username } = req.headers
+        console.log(username)
+        if(!username){
+            return res.status(401).json({ error: "Username is required"})
+        }
+    
+        const {name, quantity, checked} = req.body
+
+        console.log(name)
+        console.log(quantity)
+
+        if(!name || name.length < 3){
+            return res.status(400).json({ error: "Name is mandatory and needs to have more than 3 characters"})
+        }
+    
+        if(!quantity || typeof(quantity) !== 'number'){
+            return res.status(400).json({ error: "Quantity is mandatory and needs to be a number "})
+        }
+    
+        const newItem = await listItem.create({
+            name,
+            quantity,
+            checked: checked || false,
+            username,
+        });
+    
+        return res.json(newItem)
+    }catch(error){
+     return res.status(400).json({ error: "Error to create" })
+    }
+})
+ 
 router.delete('/list-item/:id', async (req, res) => {
     try {
         const id = req.params.id
@@ -61,33 +108,5 @@ router.put('/list-item/:id', async (req, res) => {
     }
 })
 
-router.get('/', (req, res ) => {
-    res.send("Hello World 5")
-})
-
-router.post('/list-item', async (req, res) => {
-   try{
-
-    const {name, quantity, checked} = req.body
-    
-   if(!name || name.length < 3){
-        return res.status(400).json({ error: "Name is mandatory and needs to have more than 3 characters"})
-    }
-
-    if(!quantity || typeof(quantity) !== 'number'){
-        return res.status(400).json({ error: "Quantity is mandatory and needs to be a number "})
-    }
- 
-    const newItem = await listItem.create({
-        name,
-        quantity,
-        checked: checked || false,
-    });
-
-    return res.json(newItem)
-   }catch(error){
-    return res.status(400).json({ error: "Error to create" })
-   }
-})
 
 module.exports = router
