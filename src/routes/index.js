@@ -1,112 +1,120 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const listItem = require('../models/List_item')
-express.json()
+const listItem = require("../models/List_item");
+express.json();
 
 router.get("/", (req, res) => {
-    res.send("Hello World!");
-  });
+  res.send("Hello World!");
+});
 
-router.get('/list-items', async (req, res) => {
-    try {
-        const { username } = req.header
-        
-        if(!username){
-            return res.status(401).json({ error: "Username is required"})
-        }
+router.get("/list-items", async (req, res) => {
+  try {
+    const { username } = req.header;
 
-        const items = await listItem.find({
-            username,
-        })
-        return res.json(items)
-
-    } catch (error) {
-        return res.status(400).json({ error: "Error accessing database information" })
+    if (!username) {
+      return res.status(401).json({ error: "Username is required" });
     }
-})
 
-router.post('/list-item', async (req, res) => {
-    try{
-        const { username } = req.headers
-        console.log(username)
-        if(!username){
-            return res.status(401).json({ error: "Username is required"})
-        }
-    
-        const {name, quantity, checked} = req.body
+    const items = await listItem.find({
+      username,
+    });
+    return res.json(items);
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ error: "Error accessing database information" });
+  }
+});
 
-        console.log(name)
-        console.log(quantity)
+router.post("/list-item", async (req, res) => {
+  try {
+    const { username } = req.headers;
+    if (!username) {
+      return res.status(401).json({ error: "Username is required" });
+    }
 
-        if(!name || name.length < 3){
-            return res.status(400).json({ error: "Name is mandatory and needs to have more than 3 characters"})
-        }
-    
-        if(!quantity || typeof(quantity) !== 'number'){
-            return res.status(400).json({ error: "Quantity is mandatory and needs to be a number "})
-        }
-    
-        const newItem = await listItem.create({
-            name,
-            quantity,
-            checked: checked || false,
-            username,
+    const { name, quantity, checked } = req.body;
+
+    if (!name || name.length < 3) {
+      return res
+        .status(400)
+        .json({
+          error: "Name is mandatory and needs to have more than 3 characters",
         });
-    
-        return res.json(newItem)
-    }catch(error){
-     return res.status(400).json({ error: "Error to create" })
     }
-})
- 
-router.delete('/list-item/:id', async (req, res) => {
-    try {
-        const id = req.params.id
-        if(!id){
-            res.status(400).json({ error: "ID is mandatory "})
-        }
 
-        const listDeleteItem = await listItem.findByIdAndDelete(id)
-        return res.json(listDeleteItem)
-    } catch (error) {
-        return res.status(400).json({ error: "Error deleting information" })
+    if (!quantity || typeof quantity !== "number") {
+      return res
+        .status(400)
+        .json({ error: "Quantity is mandatory and needs to be a number " });
     }
-})
 
-router.put('/list-item/:id', async (req, res) => {
-    try {
-        const id = req.params.id
-        if(!id){
-            res.status(400).json({ error: "ID is mandatory "})
-        }
+    const newItem = await listItem.create({
+      name,
+      quantity,
+      checked: checked || false,
+      username,
+    });
 
-        const {name, quantity, checked} = req.body
-    
-        if(!name || name.length < 3){
-             return res.status(400).json({ error: "Name is mandatory and needs to have more than 3 characters"})
-         }
-     
-         if(!quantity || typeof(quantity) !== 'number'){
-             return res.status(400).json({ error: "Quantity is mandatory and needs to be a number "})
-         }
+    return res.json(newItem);
+  } catch (error) {
+    return res.status(400).json({ error: "Error to create" });
+  }
+});
 
-        const listItemUpdate = await listItem.findByIdAndUpdate(id,
-        {
-            name,
-            quantity,
-            checked: checked || false,  
-        },
-        {
-            new: true
-        }   
-        )
-            
-        return res.json(listItemUpdate)
-
-    } catch (error) {
-        return res.status(400).json({ error: "Error to update" })
+router.delete("/list-item/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      res.status(400).json({ error: "ID is mandatory " });
     }
-})
 
+    const listDeleteItem = await listItem.findByIdAndDelete(id);
+    return res.json(listDeleteItem);
+  } catch (error) {
+    return res.status(400).json({ error: "Error deleting information" });
+  }
+});
 
-module.exports = router
+router.put("/list-item/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      res.status(400).json({ error: "ID is mandatory " });
+    }
+
+    const { name, quantity, checked } = req.body;
+
+    if (!name || name.length < 3) {
+      return res
+        .status(400)
+        .json({
+          error: "Name is mandatory and needs to have more than 3 characters",
+        });
+    }
+
+    if (!quantity || typeof quantity !== "number") {
+      return res
+        .status(400)
+        .json({ error: "Quantity is mandatory and needs to be a number " });
+    }
+
+    const listItemUpdate = await listItem.findByIdAndUpdate(
+      id,
+      {
+        name,
+        quantity,
+        checked: checked || false,
+      },
+      {
+        new: true,
+      }
+    );
+
+    return res.json(listItemUpdate);
+  } catch (error) {
+    return res.status(400).json({ error: "Error to update" });
+  }
+});
+
+module.exports = router;

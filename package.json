@@ -4,8 +4,8 @@
   "description": "aplicação node.js com express e mongoDB para salvar listas de compras no super mercado",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "start:dev": "nodemon index.js"
+    "start": "node src/index.js",
+    "start:dev": "nodemon src/index.js"
   },
   "author": "",
   "license": "ISC",
